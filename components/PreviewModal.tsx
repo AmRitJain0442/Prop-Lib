@@ -34,7 +34,7 @@ const CustomTheme = {
   },
   syntax: {
     plain: '#e4e4e7',
-    comment: { color: '#71717a', fontStyle: 'italic' },
+    comment: { color: '#71717a', fontStyle: 'italic' as const },
     keyword: '#c084fc', // Purple for keywords
     tag: '#2dd4bf', // Teal for tags
     punctuation: '#a1a1aa',
