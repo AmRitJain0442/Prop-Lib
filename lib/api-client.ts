@@ -2,15 +2,9 @@
  * API Client for fetching components from Supabase
  */
 
-import { ComponentRow } from './supabase-client'
+import { ComponentRecord, ComponentsResponse } from './catalog-core'
 
-export interface ComponentsResponse {
-  components: ComponentRow[]
-  total: number
-  hasMore: boolean
-  limit: number
-  offset: number
-}
+export type { ComponentsResponse }
 
 export interface PopularComponentsResponse {
   popular: Array<{
@@ -55,7 +49,7 @@ export async function fetchComponents(params?: {
 /**
  * Fetch a single component by ID
  */
-export async function fetchComponent(id: string): Promise<ComponentRow> {
+export async function fetchComponent(id: string): Promise<ComponentRecord> {
   const response = await fetch(`/api/components/${id}`)
 
   if (!response.ok) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-client'
+import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase-client'
 import { requireAdminAuth } from '@/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
@@ -14,6 +14,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (!isSupabaseAdminConfigured || !supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client is not configured' },
+        { status: 503 }
+      )
+    }
+
     // Call the refresh function
     const { error } = await supabaseAdmin.rpc('refresh_popular_components')
 

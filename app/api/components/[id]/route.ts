@@ -1,17 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { getLocalComponentById } from '@/lib/local-catalog'
+import { isSupabaseConfigured, supabase } from '@/lib/supabase-client'
 
 // Enable ISR with 5-minute revalidation
 export const revalidate = 300
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const { id } = params
+  const { id } = await params
 
-    // Fetch component by ID
+  if (!isSupabaseConfigured || !supabase) {
+    const localComponent = getLocalComponentById(id)
+    if (!localComponent) {
+      return NextResponse.json({ error: 'Component not found' }, { status: 404 })
+    }
+    return NextResponse.json(localComponent)
+  }
+
+  try {
     const { data, error } = await supabase
       .from('components')
       .select('*')
@@ -20,25 +28,20 @@ export async function GET(
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // Not found
-        return NextResponse.json(
-          { error: 'Component not found' },
-          { status: 404 }
-        )
+        return NextResponse.json({ error: 'Component not found' }, { status: 404 })
       }
       throw error
     }
 
     return NextResponse.json(data)
-
   } catch (error) {
-    console.error(`API error in GET /api/components/${params.id}:`, error)
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch component',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
+    console.error(`Supabase query failed for component ${id}, trying local fallback:`, error)
+
+    const localComponent = getLocalComponentById(id)
+    if (!localComponent) {
+      return NextResponse.json({ error: 'Component not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(localComponent)
   }
 }

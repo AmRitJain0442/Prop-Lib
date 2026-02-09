@@ -77,10 +77,11 @@ export default function ComponentCard({
         <div className="glass px-3 py-2 rounded-lg">
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <Code className="w-3 h-3" />
-            {component.dependencies.join(' • ')}
+            {component.dependencies.join(' | ')}
           </div>
         </div>
       </motion.div>
     </GlassCard>
   )
 }
+

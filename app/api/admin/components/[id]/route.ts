@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-client'
+import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase-client'
 import { requireAdminAuth } from '@/lib/admin-auth'
 import { revalidatePath } from 'next/cache'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   // Check admin authentication
   const authError = requireAdminAuth(request)
   if (authError) return authError
 
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json(
+      { error: 'Supabase admin client is not configured' },
+      { status: 503 }
+    )
+  }
+
   try {
-    const { id } = params
     const body = await request.json()
 
     // Build update object (only include provided fields)
@@ -56,7 +64,7 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error(`API error in PUT /api/admin/components/${params.id}:`, error)
+    console.error(`API error in PUT /api/admin/components/${id}:`, error)
     return NextResponse.json(
       {
         error: 'Failed to update component',
@@ -69,15 +77,22 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   // Check admin authentication
   const authError = requireAdminAuth(request)
   if (authError) return authError
 
-  try {
-    const { id } = params
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json(
+      { error: 'Supabase admin client is not configured' },
+      { status: 503 }
+    )
+  }
 
+  try {
     // Delete component from database
     const { error } = await supabaseAdmin
       .from('components')
@@ -98,7 +113,7 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error(`API error in DELETE /api/admin/components/${params.id}:`, error)
+    console.error(`API error in DELETE /api/admin/components/${id}:`, error)
     return NextResponse.json(
       {
         error: 'Failed to delete component',

@@ -1,19 +1,11 @@
-import { ComponentType } from 'react'
+export type {
+  ComponentCategory,
+  ComponentData,
+  ComponentRecord,
+  ComponentsResponse,
+} from './catalog-core'
 
-export interface ComponentData {
-  id: string
-  name: string
-  description: string
-  category: 'headers' | 'search' | 'navigation' | 'cards' | 'forms' | 'animations'
-  tags: string[]
-  preview: ComponentType
-  code: string
-  dependencies: string[]
-  integration: string
-  smartPrompt?: string
-}
-
-export interface ComponentCategory {
+export interface ComponentCategoryInfo {
   id: string
   name: string
   icon: string

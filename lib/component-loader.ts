@@ -1,4 +1,4 @@
-import { ComponentType } from 'react'
+import { ComponentType, createElement } from 'react'
 
 // Cache for loaded preview components
 const componentCache = new Map<string, ComponentType>()
@@ -29,11 +29,8 @@ export async function loadPreviewComponent(path: string): Promise<ComponentType>
   } catch (error) {
     console.error(`Failed to load component at ${path}:`, error)
     // Return a fallback error component
-    return (() => (
-      <div className="text-red-500 p-4">
-        Failed to load component: {path}
-      </div>
-    )) as ComponentType
+    return (() =>
+      createElement('div', { className: 'text-red-500 p-4' }, `Failed to load component: ${path}`)) as ComponentType
   }
 }
 
@@ -48,6 +45,7 @@ export const PREVIEW_COMPONENTS: Record<string, () => Promise<any>> = {
   'previews/FerrofluidTabBar': () => import('@/components/previews/FerrofluidTabBar'),
   'previews/FlashlightSidebar': () => import('@/components/previews/FlashlightSidebar'),
   'previews/GravityWellUpload': () => import('@/components/previews/GravityWellUpload'),
+  'previews/GyroscopicIslands': () => import('@/components/previews/GyroscopicIslands'),
   'previews/SafeCrackerSlider': () => import('@/components/previews/SafeCrackerSlider'),
   'previews/KineticSandButton': () => import('@/components/previews/KineticSandButton'),
   'previews/OrigamiCard': () => import('@/components/previews/OrigamiCard'),

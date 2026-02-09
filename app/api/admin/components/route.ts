@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-client'
+import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase-client'
 import { requireAdminAuth } from '@/lib/admin-auth'
 import { revalidatePath } from 'next/cache'
 
@@ -7,6 +7,13 @@ export async function POST(request: NextRequest) {
   // Check admin authentication
   const authError = requireAdminAuth(request)
   if (authError) return authError
+
+  if (!isSupabaseAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json(
+      { error: 'Supabase admin client is not configured' },
+      { status: 503 }
+    )
+  }
 
   try {
     const body = await request.json()

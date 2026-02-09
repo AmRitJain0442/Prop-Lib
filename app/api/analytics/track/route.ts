@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { isSupabaseConfigured, supabase } from '@/lib/supabase-client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +19,10 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid eventType. Must be view, copy, or search' },
         { status: 400 }
       )
+    }
+
+    if (!isSupabaseConfigured || !supabase) {
+      return NextResponse.json({ success: true, mode: 'local-noop' })
     }
 
     // Increment counter in components table (atomic operation)
